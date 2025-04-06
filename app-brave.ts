@@ -47,14 +47,11 @@ interface Listing {
   takas: string;
 }
 
-const getRandomDelay = () =>
-  Math.floor(Math.random() * (120000 - 60000) + 60000); // 60-120sn arası bekleme
-
 const scrapePage = async (url: string): Promise<Listing | null> => {
   console.log(`🌐 Navigating to ${url}`);
   const browser = await puppeteer.launch({
     executablePath:
-      "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
+      "/Applications/Brave Browser.app/Contents/MacOS/Brave Browser",
     headless: false,
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
   });
@@ -72,7 +69,11 @@ const scrapePage = async (url: string): Promise<Listing | null> => {
   try {
     await page.goto(url, { waitUntil: "networkidle2", timeout: 60000 });
     await page.waitForSelector("body", { timeout: 60000 });
-    await setTimeout(getRandomDelay());
+
+    // İnsan gibi davranmak için rastgele bekleme süresi (1-2 dakika)
+    const waitTime = Math.floor(Math.random() * (120000 - 60000) + 60000);
+    console.log(`⏳ Bekleniyor: ${waitTime / 1000} saniye`);
+    await setTimeout(waitTime);
 
     const data = await page.evaluate(() => {
       const getText = (selector: string) =>
@@ -108,7 +109,7 @@ const scrapePage = async (url: string): Promise<Listing | null> => {
     await browser.close();
     return data;
   } catch (error) {
-    console.error(`❌ Cloudflare engellemeleri sırasında hata: ${url}`);
+    console.error(`❌ Hata: ${url}`);
     await browser.close();
     return null;
   }
@@ -136,11 +137,7 @@ const scrapeAllListings = async () => {
     } else {
       console.log(`❌ ${url} verisi çekilemedi.`);
     }
-
-    console.log("⏳ Yeni isteğe kadar bekleniyor...");
-    await setTimeout(getRandomDelay());
   }
-
   console.log("🎉 Scraping tamamlandı!");
 };
 
